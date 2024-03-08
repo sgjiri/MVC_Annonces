@@ -51,7 +51,7 @@ class Main
 
             if (method_exists($controller, $action)) {
                 // Si il reste des paramètres, on appelle la méthode en envoyant les paramètres sinon on l'appelle "à vide"
-                (isset($params[0])) ? $controller->$action($params) : $controller->$action();
+                (isset($params[0])) ? call_user_func_array([$controller, $action], $params) : $controller->$action();
             } else {
                 // On envoie le code réponse 404
                 http_response_code(404);
