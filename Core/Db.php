@@ -28,7 +28,7 @@ class Db extends PDO
 
             // Configuration des attributs de la connexion PDO
             $this->setAttribute(PDO::MYSQL_ATTR_INIT_COMMAND, "SET NAMES utf8"); // Configuration du jeu de caractères
-            $this->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC); // Configuration du mode de récupération des données
+            $this->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ); // Configuration du mode de récupération des données
             $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // Configuration du mode de gestion des erreurs
 
         } catch (PDOException $e) {
