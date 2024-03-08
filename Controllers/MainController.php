@@ -21,7 +21,6 @@ class MainController extends Controller
      */
     public function index()
     {
-        $this->template = "home";
         $this->render('main/index', [], 'home');
     }
 }
