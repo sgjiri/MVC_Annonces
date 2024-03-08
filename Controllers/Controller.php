@@ -9,7 +9,6 @@ namespace App\Controllers;
  */
 abstract class Controller
 {
-    protected $template = "default";
 
     /**
      * Fonction render
@@ -20,7 +19,7 @@ abstract class Controller
      * @param array $donnees Les données à transmettre à la vue (par défaut vide)
      * @return void
      */
-    public function render(string $fichier, array $donnees = [])
+    public function render(string $fichier, array $donnees = [], string $template = "default" )
     {
         // On extrait les données pour les rendre accessibles comme des variables distinctes
         extract($donnees);
@@ -35,6 +34,6 @@ abstract class Controller
         $contenu = ob_get_clean();
 
         // On inclut le template de page
-        require_once ROOT."/Views/".$this->template.".php";
+        require_once ROOT."/Views/".$template.".php";
     }
 }
