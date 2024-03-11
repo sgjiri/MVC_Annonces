@@ -1,6 +1,5 @@
 <?php
 namespace App\Models;
-use App\Models\Model;
 
 class UsersModel extends Model
 {
@@ -13,6 +12,30 @@ class UsersModel extends Model
         // Extraire le nom de classe de l'espace de noms et définir le nom de la table
         $class = str_replace(__NAMESPACE__ ."\\", "", __CLASS__);
         $this->table = strtolower(str_replace("Model","",$class));
+    }
+
+    /**
+     * Récupérer un user par rapport de son e-mail 
+     *
+     * @param string $email
+     * @return mixed
+     */
+    public function findOneByEmail(string $email)
+    {
+        return $this->runQuery("SELECT * FROM $this->table WHERE email = ?", [$email])->fetch();
+    }
+
+    /**
+     * Cette méthode crée la Session utilisateur 
+     *
+     * @return void
+     */
+    public function setSession()
+    {
+        $_SESSION["user"] = [
+            "id" => $this ->id,
+            "email" => $this->email
+        ];
     }
 
     /**
