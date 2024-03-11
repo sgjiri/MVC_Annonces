@@ -15,6 +15,7 @@ class Model extends Db
     // Instance de DB
     private $db;
 
+
     /**
      * Récupère tous les enregistrements de la table.
      *
@@ -67,15 +68,15 @@ class Model extends Db
      * @param Model $model Le modèle contenant les données de l'enregistrement à créer.
      * @return object|null L'enregistrement créé, ou null en cas d'échec.
      */
-    public function create(Model $model)
+    public function create()
     {
         $champs = [];
         $inter = [];
         $valeurs = [];
 
         // En boucle pour éclater le tableau
-        foreach ($model as $champ => $valeur) {
-            if ($valeur != null && $champ != "db" && $champ != "table") {
+        foreach ($this as $champ => $valeur) {
+            if ($valeur !== null && $champ != "db" && $champ != "table") {
                 $champs[] = $champ;
                 $inter[] = "?";
                 $valeurs[] = $valeur;
@@ -92,25 +93,23 @@ class Model extends Db
 
     /**
      * Met à jour l'enregistrement de la table avec l'ID spécifié.
-     *
-     * @param integer $id L'ID de l'enregistrement à mettre à jour.
      * @param Model $model Le modèle contenant les données de l'enregistrement à mettre à jour.
      * @return object|null L'enregistrement mis à jour, ou null en cas d'échec.
      */
-    public function update(int $id, Model $model)
+    public function update()
     {
         $champs = [];
         $valeurs = [];
 
         // En boucle pour éclater le tableau
-        foreach ($model as $champ => $valeur) {
+        foreach ($this as $champ => $valeur) {
             if ($valeur !== null && $champ != "db" && $champ != "table") {
                 $champs[] = "$champ = ?";
                 $valeurs[] = $valeur;
             }
         }
 
-        $valeurs[] = $id;
+        $valeurs[] = $this->id;
 
         // On transforme le tableau champs en chaîne de caractères.
         $liste_champs = implode(" , ", $champs);
@@ -154,13 +153,8 @@ class Model extends Db
         }
     }
 
-    /**
-     * Hydrate le modèle avec les données spécifiées.
-     *
-     * @param array $donnees Les données à utiliser pour hydrater le modèle.
-     * @return Model Le modèle hydraté.
-     */
-    public function hydrate(array $donnees)
+
+    public function hydrate($donnees)
     {
         foreach($donnees as $key => $value){
             // On récupère le nom du setter correspondant à la clé (key)

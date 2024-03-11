@@ -13,6 +13,8 @@ class Main
      */
     public function start()
     {
+        //On démarre la session 
+        session_start();
 
         //htpp://MVC_Annonces/controleur/methode/parametres
         //htpp://MVC_Annonces/annonces/details/brouette
