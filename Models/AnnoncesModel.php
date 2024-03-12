@@ -8,6 +8,7 @@ class AnnoncesModel extends Model
     protected $description; // La description de l'annonce.
     protected $created_at; // La date et l'heure de création de l'annonce.
     protected $actif; // Indique si l'annonce est active ou non.
+    protected $users_id;
 
     public function __construct()
     {
@@ -121,6 +122,25 @@ class AnnoncesModel extends Model
     {
         $this->actif = $actif;
         // Définit si l'annonce est active ou non.
+
+        return $this;
+    }
+        /**
+     * Get the value of users_is
+     */ 
+    public function getUsers_id():int
+    {
+        return $this->users_id;
+    }
+
+    /**
+     * Set the value of users_is
+     *
+     * @return  self
+     */ 
+    public function setUsers_id(int $users_id)
+    {
+        $this->users_id = $users_id;
 
         return $this;
     }

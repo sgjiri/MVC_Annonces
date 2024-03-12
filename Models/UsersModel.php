@@ -6,6 +6,7 @@ class UsersModel extends Model
     protected $id; // Identifiant de l'utilisateur
     protected $email; // Adresse e-mail de l'utilisateur
     protected $password; // Mot de passe de l'utilisateur
+    
 
     public function __construct()
     {
