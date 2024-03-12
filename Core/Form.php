@@ -63,7 +63,7 @@ class Form
                 $str .= " $attribut";
             } else {
                 // Ajoute l'attribut et sa valeur.
-                $str .= " $attribut='$value'";
+                $str .= " $attribut=\"$value\"";
             }
         }
         // Retourne la chaîne des attributs.
@@ -177,7 +177,7 @@ class Form
         $this->formCode .= $attributs ? $this->addAttribut($attributs) . ">" : ">";
         // Parcourt les options du select et les ajoute.
         foreach ($options as $value => $text) {
-            $this->formCode .= "<option value='$value'>$text</option>";
+            $this->formCode .= "<option value=\"$value\">$text</option>";
         }
         // Ferme la balise select.
         $this->formCode .= "</select>";
