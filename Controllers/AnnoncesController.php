@@ -71,7 +71,7 @@ class AnnoncesController extends Controller
                 exit;
             } else {
                 //Le formulaire n'est pas complet 
-                $_SESSION["erreur"] = !empty($_POST)? "Le formulaire est incomplet" : "";
+                $_SESSION["erreur"] = !empty($_POST) ? "Le formulaire est incomplet" : "";
                 $title = isset($_POST["titre"]) ? strip_tags($_POST["titre"]) : "";
                 $description = isset($_POST["description"]) ? strip_tags($_POST["description"]) : "";
             }
@@ -120,9 +120,11 @@ class AnnoncesController extends Controller
 
             //On vérifie si l'utilisateur est l'auteur de l'annonce 
             if ($annonce->users_id !== $_SESSION["user"]["id"]) {
-                $_SESSION["erreur"]  = "Vous n'avez pas l'accès à cette page";
-                header("Location: /PHP/MVC_Annonces/annonces");
-                exit;
+                if (!in_array("ROLE_ADMIN", $_SESSION["user"]["roles"])) {
+                    $_SESSION["erreur"]  = "Vous n'avez pas l'accès à cette page";
+                    header("Location: /PHP/MVC_Annonces/annonces");
+                    exit;
+                }
             }
 
             //On traite le formulaire. 

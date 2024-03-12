@@ -105,7 +105,7 @@ class UsersController extends Controller
      */
     public function logout(){
         unset($_SESSION["user"]);
-        header("Location: " . $_SERVER["HTTP_REFERER"]);
+        header("Location: /PHP/MVC_Annonces/");
         exit;
     }
 }

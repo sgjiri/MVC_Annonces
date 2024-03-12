@@ -14,6 +14,7 @@ class Model extends Db
     protected $table;
     // Instance de DB
     private $db;
+    protected $id;
 
 
     /**
