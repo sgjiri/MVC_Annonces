@@ -15,7 +15,7 @@ class AdminController extends Controller
     {
         //On vérifie si l'utilisateur a le rôle admin. 
         if($this->isAdmin()){
-            $this->render("admin/index", [], "admin");
+            $this->twig->display("admin/index.html.twig", [], "admin");
         }
     }
 
@@ -30,7 +30,7 @@ class AdminController extends Controller
             $adsModel = new AnnoncesModel;
             $ads = $adsModel->findAll();
             
-            $this->render("admin/ad", compact("ads"), "admin");
+            $this->twig->display("admin/ad.html.twig", compact("ads"), "admin");
         }
     }
 

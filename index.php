@@ -8,6 +8,8 @@ use App\Core\Main;
 
 // On importe l'Autoloader
 require_once ROOT.'/Autoloader.php';
+require_once './vendor/altorouter/altorouter/AltoRouter.php';
+require_once './vendor/autoload.php';
 Autoloader::register();
 
 // On instancie Main
