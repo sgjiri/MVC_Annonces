@@ -20,7 +20,7 @@ class AnnoncesController extends Controller
         //On va chercher toutes les annonces 
         $annonces = $annoncesModel->findBy(['actif' => 1]);
         //On génère la vu
-        $this->render('annonces/index', compact("annonces"));
+        $this->twig->display("annonces/index.html.twig", compact("annonces"));
     }
 
     /**
@@ -35,7 +35,7 @@ class AnnoncesController extends Controller
         //On va chercher 1 annonce. 
         $annonce = $annoncesModel->find($id);
         //On génère la vue 
-        $this->render('annonces/lire', compact("annonce"));
+        $this->twig->display('annonces/lire', compact("annonce"));
     }
 
 
@@ -86,7 +86,7 @@ class AnnoncesController extends Controller
                 ->addButton("Ajouter", ["class" => "btn btn-primary"])
                 ->endForm();
 
-            $this->render("annonces/add", ["addAnnonceForm" => $form->createForm()]);
+            $this->twig->display("annonces/add", ["addAnnonceForm" => $form->createForm()]);
         } else {
             //L'utilisateur n'est pas connecté 
             $_SESSION["erreur"] = "Vous devez être connecté pour accéder à cette page";
@@ -157,7 +157,7 @@ class AnnoncesController extends Controller
                 ->addButton("Ajouter", ["class" => "btn btn-primary"])
                 ->endForm();
             //On envoie à la vue 
-            $this->render("annonces/edit", ["form" => $form->createForm()]);
+            $this->twig->display("annonces/edit", ["form" => $form->createForm()]);
         } else {
             //L'utilisateur n'est pas connecté 
             $_SESSION["erreur"] = "Vous devez être connecté pour accéder à cette page";

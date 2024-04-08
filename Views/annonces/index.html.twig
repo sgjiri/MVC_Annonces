@@ -1,0 +1,24 @@
+{% extends "base.html.twig" %}
+{% block title %}
+
+	List des annonces
+
+{% endblock %}
+
+{% block body %}
+	<h1>List des annonces</h1>
+
+	{% for annonce in annonces %}
+		<article>
+			<h2>
+				<a href="/PHP/MVC_Annonces/annonces/lire/{{annonce.id}}>">{{annonce.titre}}</a>
+			</h2>
+			<p>{{annonce.description}}</p>
+			<p>{{ base }}</p>
+			<p>{{ session.user.email }}</p>
+		</article>
+
+	{% endfor %}
+
+
+{% endblock %}

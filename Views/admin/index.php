@@ -1,3 +1,0 @@
-<h1>Bienvenue das l'administration</h1>
-<p><a href="/PHP/MVC_Annonces/admin/ad">Gérer les annonces</a></p>
-<p><a href="/PHP/MVC_Annonces/admin/users">Gérer les utilisateurs </a></p>

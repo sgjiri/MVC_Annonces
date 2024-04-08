@@ -39,7 +39,8 @@ class UsersController extends Controller
             if(password_verify($_POST["password"], $user->getPassword())){
                 //Mot de passe est bon. 
                 $user->setSession();
-                header("Location: /PHP/MVC_Annonces");
+                var_dump($_SESSION['user']);
+                // header("Location: /PHP/MVC_Annonces");
                 exit;
             }else{
                 //Mauvaise mot de passe 
@@ -62,7 +63,7 @@ class UsersController extends Controller
             ->endForm(); // Fin de la construction du formulaire
 
         // Envoi du formulaire à la vue à travers la méthode render héritée de la classe Controller
-        $this->render("users/login", ["loginForm" => $form->createForm()]);
+        $this->twig->display("users/login.html.twig", ["loginForm" => $form->createForm()],);
     }
     
 
@@ -95,7 +96,7 @@ class UsersController extends Controller
             ->endForm();
 
         // Correction de "createForme" en "createForm" pour générer le formulaire
-        $this->render("users/register", ["registerForm" => $form->createForm()]);
+        $this->twig->display("users/register", ["registerForm" => $form->createForm()]);
     }
 
     /**
