@@ -35,7 +35,7 @@ class AnnoncesController extends Controller
         //On va chercher 1 annonce. 
         $annonce = $annoncesModel->find($id);
         //On génère la vue 
-        $this->twig->display('annonces/lire', compact("annonce"));
+        $this->twig->display('annonces/lire.html.twig', compact("annonce"));
     }
 
 
@@ -65,13 +65,13 @@ class AnnoncesController extends Controller
                 //On enregistre notre objet. 
                 $ad->create();
 
-                //On redirige. 
-                $_SESSION["message"] = "Votre annonce a été enregistrée avec succès.";
+                //On redirige.
+                $flashSuccessMessage = $this->setFlash("success", "Votre annonce a été enregistrée avec succès"); 
                 header("Location: /PHP/MVC_Annonces");
                 exit;
             } else {
                 //Le formulaire n'est pas complet 
-                $_SESSION["erreur"] = !empty($_POST) ? "Le formulaire est incomplet" : "";
+                $this->setFlash("error", "Le formulaire est incomplet");
                 $title = isset($_POST["titre"]) ? strip_tags($_POST["titre"]) : "";
                 $description = isset($_POST["description"]) ? strip_tags($_POST["description"]) : "";
             }
@@ -85,11 +85,12 @@ class AnnoncesController extends Controller
                 ->addInput("file", "image", ["class" => "form-control", "id" => "image"])
                 ->addButton("Ajouter", ["class" => "btn btn-primary"])
                 ->endForm();
-
-            $this->twig->display("annonces/add", ["addAnnonceForm" => $form->createForm()]);
+                $flashErrorMessage = $this->getFlash("error");
+                var_dump($flashErrorMessage);
+            $this->twig->display("annonces/add.html.twig", ["addAnnonceForm" => $form->createForm(), "flashErrorMessage" => $flashErrorMessage]);
         } else {
             //L'utilisateur n'est pas connecté 
-            $_SESSION["erreur"] = "Vous devez être connecté pour accéder à cette page";
+            $flashErrorMessage = $this->setFlash("error", "Vous devez être connecté pour accéder à cette page");
             header("Location: /PHP/MVC_Annonces/users/login");
         }
     }
