@@ -42,19 +42,15 @@
 	</nav>
 </header>
 <div class="container">
-	{% if session.message is defined %}
+	{% if session.flash.success is defined %}
 		<div class="alert alert-success" role="alert">
-			{{ session.message }}
-			{% do session.remove('message') %}
+			{{ flashSuccessMessage }}
 		</div>
 	{% endif %}
-	{% if session.erreur is defined %}
-		<div class="erreur">{{ session.erreur }}</div>
-		<script>
-			// Supprimer la variable erreur après affichage
-			setTimeout(function () {
-			document.querySelector('.erreur').style.display = 'none';
-			}, 3000); // Supprimer après 3 secondes (ajustez la durée selon vos besoins)
-		</script>
+	{% if session.flash.error is defined %}
+		<div class="alert alert-danger" role="alert">
+			{{ flashErrorMessage }}
+		</div>
 	{% endif %}
+
 </div>

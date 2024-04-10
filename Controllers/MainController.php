@@ -23,6 +23,7 @@ class MainController extends Controller
      */
     public function index()
     {
-        $this->twig->display('main/index.html.twig', [], 'home');
+        $flashSuccessMessage = $this->getFlash("success");
+        $this->twig->display('main/index.html.twig', compact("flashSuccessMessage"), 'home');
     }
 }

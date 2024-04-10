@@ -21,30 +21,28 @@ class UsersController extends Controller
     {
         //On vérifie si le formulaire est complet. 
 
-        if (Form::validate($_POST, ["email", "password"])){
+        if (Form::validate($_POST, ["email", "password"])) {
             //Le formulaire est complet 
             //On va chercher dans la base de données l'utilisateur avec l'e-mail entré. 
             $userModel = new UsersModel;
             $userArray = $userModel->findOneByEmail(strip_tags($_POST["email"]));
             //Si l'utilisateur n'existe pas 
             if (!$userArray) {
-                //On envoie voit un message de session 
-                $_SESSION['erreur'] = "L'adresse mail est/ou le mot de passe est incorrect";
+                $this->setFlash('error', "L'adresse email et/ou le mot de passe est incorrect");
                 header("Location: /PHP/MVC_Annonces/users/login");
                 exit;
             }
             //L'utilisateur existe 
             $user = $userModel->hydrate($userArray);
             //On vérifie si le mot de passe est correct. 
-            if(password_verify($_POST["password"], $user->getPassword())){
+            if (password_verify($_POST["password"], $user->getPassword())) {
                 //Mot de passe est bon. 
                 $user->setSession();
-                var_dump($_SESSION['user']);
-                // header("Location: /PHP/MVC_Annonces");
+                header("Location: /PHP/MVC_Annonces");
                 exit;
-            }else{
+            } else {
                 //Mauvaise mot de passe 
-                $_SESSION['erreur'] = "L'adresse mail est/ou le mot de passe est incorrect";
+                $this->setFlash('error', "L'adresse email et/ou le mot de passe est incorrect");
                 header("Location: /PHP/MVC_Annonces/users/login");
                 exit;
             }
@@ -63,9 +61,13 @@ class UsersController extends Controller
             ->endForm(); // Fin de la construction du formulaire
 
         // Envoi du formulaire à la vue à travers la méthode render héritée de la classe Controller
-        $this->twig->display("users/login.html.twig", ["loginForm" => $form->createForm()],);
+        $flashErrorMessage = $this->getFlash('error');
+        $this->twig->display("users/login.html.twig", [
+            "loginForm" => $form->createForm(),
+            "flashErrorMessage" => $flashErrorMessage
+        ]);
     }
-    
+
 
 
     public function register()
@@ -75,8 +77,32 @@ class UsersController extends Controller
             //Le formulaire est valide. 
             //On protège le champ e-mail de l'attaque XSS. 
             $email = strip_tags($_POST["email"]);
+
+            // Vérifie si l'email est valide, sinon ajoute une erreur.
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $this->setFlash('error', "L'adresse email est incorrecte");
+                header("Location: /PHP/MVC_Annonces/users/register");
+                exit;
+            }
+            $pass = $_POST['password'];
+            // Expression régulière pour valider la complexité du mot de passe.
+            $pattern = '/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/';
+            // Vérifie si le mot de passe correspond à l'expression régulière.
+            if (!preg_match($pattern, $pass)) {
+                $this->setFlash('error', "Le mot de passe doit contenir au moins une lettre majuscule, une minuscule, un chiffre, un caractère spécial et être d'au moins 8 caractères de longueur.");
+                header("Location: /PHP/MVC_Annonces/users/register");
+                exit;
+            }
+            $passConfirm = $_POST['passwordConfirm'];
+            if($pass != $passConfirm){
+                $this->setFlash("error", "Les mots de passe sont différents");
+                header("Location: /PHP/MVC_Annonces/users/register");
+                exit;
+            }
             //On chiffre le mot de passe. 
-            $pass = password_hash($_POST['password'], PASSWORD_ARGON2ID);
+            $pass = password_hash($pass, PASSWORD_ARGON2ID);
+
+
             $user = new UsersModel;
             $user->hydrate(["email" => $email, "password" => $pass]);
             $user->create();
@@ -85,18 +111,17 @@ class UsersController extends Controller
         $form = new Form;
         $form->startForm()
             ->addLabelFor("email", "E-mail")
-            // Correction de "addInput" en "addInput"
             ->addInput("email", "email", ["class" => "form-control", "id" => "email"]) // Création du champ email
             ->addLabelFor("pass", "Mot de passe")
-            // Même correction ici et ajout de "name" pour l'attribut name du champ
             ->addInput("password", "password", ["name" => "password", "id" => "pass", "class" => "form-control"])
-            // Correction de "M'inscrir" en "M'inscrire"
+            ->addLabelFor("passConfirm", "Confirmation de mot de passe")
+            ->addInput("password", "passwordConfirm", ["name" => "passwordConfirm", "id" => "passConfirm", "class" => "form-control"])
             ->addButton("M'inscrire", ["class" => "btn btn-primary"])
-            // Correction de "finForm" en "endForm" en supposant que c'est la méthode appropriée
             ->endForm();
 
         // Correction de "createForme" en "createForm" pour générer le formulaire
-        $this->twig->display("users/register", ["registerForm" => $form->createForm()]);
+        $flashErrorMessage = $this->getFlash("error");
+        $this->twig->display("users/register.html.twig", ["registerForm" => $form->createForm(), "flashErrorMessage" => $flashErrorMessage]);
     }
 
     /**
@@ -104,7 +129,8 @@ class UsersController extends Controller
      *
      * @return exit 
      */
-    public function logout(){
+    public function logout()
+    {
         unset($_SESSION["user"]);
         header("Location: /PHP/MVC_Annonces/");
         exit;
