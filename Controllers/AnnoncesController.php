@@ -48,6 +48,11 @@ class AnnoncesController extends Controller
     {
         //On vérifie si l'utilisateur est connecté 
         if (isset($_SESSION["user"]) && !empty($_SESSION["user"]["id"])) {
+            //Si dans le code qui suit un utilisateur a mal validé le formulaire avec les champs qui manquaient, je récupère la variable session $_SESSION['form_data'] avec les informations qui se trouvent dedans
+            $title = isset($_SESSION['form_data']['titre']) ? strip_tags($_SESSION['form_data']['titre']) : "";
+            $description = isset($_SESSION['form_data']['description']) ? strip_tags($_SESSION['form_data']['description']) : "";
+            // Après usage, il est bon de nettoyer les données de session utilisées pour éviter des conflits futurs
+            unset($_SESSION['form_data']);
             //L'utilisateur est connecté 
             //On vérifie si le formulaire est complet. 
             if (Form::validate($_POST, ["titre", "description"])) {
@@ -58,7 +63,6 @@ class AnnoncesController extends Controller
                 $description = strip_tags($_POST["description"]);
                 //En instancie notre modèle. 
                 $ad = new AnnoncesModel;
-                var_dump($_SESSION["user"]["id"]);
                 $ad->setTitre($title)
                     ->setDescription($description)
                     ->setUsers_id($_SESSION["user"]["id"]);
@@ -66,14 +70,20 @@ class AnnoncesController extends Controller
                 $ad->create();
 
                 //On redirige.
-                $flashSuccessMessage = $this->setFlash("success", "Votre annonce a été enregistrée avec succès"); 
+
+                $this->setFlash("success", "Votre annonce a été enregistrée avec succès");
                 header("Location: /PHP/MVC_Annonces");
                 exit;
             } else {
                 //Le formulaire n'est pas complet 
-                $this->setFlash("error", "Le formulaire est incomplet");
-                $title = isset($_POST["titre"]) ? strip_tags($_POST["titre"]) : "";
-                $description = isset($_POST["description"]) ? strip_tags($_POST["description"]) : "";
+                if (!empty($_POST)) {
+                    //Je stocke les informations de $_POST dans une autre variable session. Pour pouvoir Les récupérer plus tard, après la réactualisation de la page.
+                    $_SESSION['form_data'] = $_POST;
+                    //J'initialise la variable session pour stocker l'erreur en intérieur de cette variable 
+                    $this->setFlash("error", "Le formulaire est incomplet");
+                    header("Location: /PHP/MVC_Annonces/annonces/add");
+                    exit;
+                }
             }
             $form = new Form;
             $form->startForm("post", "#", ["class" => "form", "id" => "addAnnoce", "enctype" => "multipart/formdataSoup"])
@@ -85,8 +95,7 @@ class AnnoncesController extends Controller
                 ->addInput("file", "image", ["class" => "form-control", "id" => "image"])
                 ->addButton("Ajouter", ["class" => "btn btn-primary"])
                 ->endForm();
-                $flashErrorMessage = $this->getFlash("error");
-                var_dump($flashErrorMessage);
+            $flashErrorMessage = $this->getFlash('error');
             $this->twig->display("annonces/add.html.twig", ["addAnnonceForm" => $form->createForm(), "flashErrorMessage" => $flashErrorMessage]);
         } else {
             //L'utilisateur n'est pas connecté 
