@@ -19,7 +19,9 @@ class UsersController extends Controller
      */
     public function login()
     {
-        //On vérifie si le formulaire est complet. 
+        $formData = $this->getFormData(['email', 'password']);
+        $email = $formData['email'];
+        $pass = $formData['password'];
 
         if (Form::validate($_POST, ["email", "password"])) {
             //Le formulaire est complet 
@@ -28,6 +30,8 @@ class UsersController extends Controller
             $userArray = $userModel->findOneByEmail(strip_tags($_POST["email"]));
             //Si l'utilisateur n'existe pas 
             if (!$userArray) {
+                //Je stocke les informations de $_POST dans une autre variable session. Pour pouvoir Les récupérer plus tard, après la réactualisation de la page.
+                $_SESSION['form_data'] = $_POST;
                 $this->setFlash('error', "L'adresse email et/ou le mot de passe est incorrect");
                 header("Location: /PHP/MVC_Annonces/users/login");
                 exit;
@@ -41,8 +45,19 @@ class UsersController extends Controller
                 header("Location: /PHP/MVC_Annonces");
                 exit;
             } else {
+                //Je stocke les informations de $_POST dans une autre variable session. Pour pouvoir Les récupérer plus tard, après la réactualisation de la page.
+                $_SESSION['form_data'] = $_POST;
                 //Mauvaise mot de passe 
                 $this->setFlash('error', "L'adresse email et/ou le mot de passe est incorrect");
+                header("Location: /PHP/MVC_Annonces/users/login");
+                exit;
+            }
+        } else {
+            //Le formulaire n'est pas complet 
+            if (!empty($_POST)) {
+                //Je stocke les informations de $_POST dans une autre variable session. Pour pouvoir Les récupérer plus tard, après la réactualisation de la page.
+                $_SESSION['form_data'] = $_POST;
+                $this->setFlash("error", "Le formulaire est incomplet");
                 header("Location: /PHP/MVC_Annonces/users/login");
                 exit;
             }
@@ -54,9 +69,9 @@ class UsersController extends Controller
         // Construction du formulaire de connexion
         $form->startForm("post", "#", ["class" => "form", "id" => "formulaire"])
             ->addLabelFor("email", "E-mail :") // Ajout du label pour l'email
-            ->addInput("email", "email", ["class" => "form-control", "id" => "email"]) // Création du champ email
+            ->addInput("email", "email", ["class" => "form-control", "id" => "email", "value" => $email]) // Création du champ email
             ->addLabelFor("pass", "Mot de passe: ") // Ajout du label pour le mot de passe
-            ->addInput("password", "password", ["id" => "pass", "class" => "form-control"]) // Création du champ mot de passe
+            ->addInput("password", "password", ["id" => "pass", "class" => "form-control", "value" => $pass]) // Création du champ mot de passe
             ->addButton("Me connecter", ["class" => "btn btn-primary"]) // Ajout du bouton de connexion
             ->endForm(); // Fin de la construction du formulaire
 
@@ -72,14 +87,15 @@ class UsersController extends Controller
 
     public function register()
     {
+        
         // On vérifie si le formulaire est valide 
         if (Form::validate($_POST, ["email", "password"])) {
             //Le formulaire est valide. 
-            //On protège le champ e-mail de l'attaque XSS. 
             $email = strip_tags($_POST["email"]);
-
             // Vérifie si l'email est valide, sinon ajoute une erreur.
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                //Je stocke les informations de $_POST dans une autre variable session. Pour pouvoir Les récupérer plus tard, après la réactualisation de la page.
+                $_SESSION['form_data'] = $_POST;
                 $this->setFlash('error', "L'adresse email est incorrecte");
                 header("Location: /PHP/MVC_Annonces/users/register");
                 exit;
@@ -89,12 +105,16 @@ class UsersController extends Controller
             $pattern = '/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/';
             // Vérifie si le mot de passe correspond à l'expression régulière.
             if (!preg_match($pattern, $pass)) {
+                //Je stocke les informations de $_POST dans une autre variable session. Pour pouvoir Les récupérer plus tard, après la réactualisation de la page.
+                $_SESSION['form_data'] = $_POST;
                 $this->setFlash('error', "Le mot de passe doit contenir au moins une lettre majuscule, une minuscule, un chiffre, un caractère spécial et être d'au moins 8 caractères de longueur.");
                 header("Location: /PHP/MVC_Annonces/users/register");
                 exit;
             }
             $passConfirm = $_POST['passwordConfirm'];
-            if($pass != $passConfirm){
+            if ($pass != $passConfirm) {
+                //Je stocke les informations de $_POST dans une autre variable session. Pour pouvoir Les récupérer plus tard, après la réactualisation de la page.
+                $_SESSION['form_data'] = $_POST;
                 $this->setFlash("error", "Les mots de passe sont différents");
                 header("Location: /PHP/MVC_Annonces/users/register");
                 exit;
@@ -106,16 +126,30 @@ class UsersController extends Controller
             $user = new UsersModel;
             $user->hydrate(["email" => $email, "password" => $pass]);
             $user->create();
+        } else {
+            //Le formulaire n'est pas complet 
+            if (!empty($_POST)) {
+                //Je stocke les informations de $_POST dans une autre variable session. Pour pouvoir Les récupérer plus tard, après la réactualisation de la page.
+                $_SESSION['form_data'] = $_POST;
+                $this->setFlash("error", "Le formulaire est incomplet");
+                header("Location: /PHP/MVC_Annonces/users/register");
+                exit;
+            }
+            $email = isset($_POST["email"]) ? strip_tags($_POST["email"]) : "";
         }
         // Création d'une nouvelle instance de la classe Form
         $form = new Form;
+        $formData = $this->getFormData(['email', 'password', 'passwordConfirm']);
+        $email = $formData['email'];
+        $pass = $formData['password'];
+        $passConfirm = $formData['passwordConfirm'];
         $form->startForm()
             ->addLabelFor("email", "E-mail")
-            ->addInput("email", "email", ["class" => "form-control", "id" => "email"]) // Création du champ email
-            ->addLabelFor("pass", "Mot de passe")
-            ->addInput("password", "password", ["name" => "password", "id" => "pass", "class" => "form-control"])
+            ->addInput("email", "email", ["class" => "form-control", "id" => "email", "value" => $email]) // Création du champ email
+            ->addLabelFor("pass", "Mot de passe")    
+            ->addInput("password", "password", ["name" => "password", "id" => "pass", "class" => "form-control", "value" => $pass])
             ->addLabelFor("passConfirm", "Confirmation de mot de passe")
-            ->addInput("password", "passwordConfirm", ["name" => "passwordConfirm", "id" => "passConfirm", "class" => "form-control"])
+            ->addInput("password", "passwordConfirm", ["name" => "passwordConfirm", "id" => "passConfirm", "class" => "form-control", "value" => $passConfirm])
             ->addButton("M'inscrire", ["class" => "btn btn-primary"])
             ->endForm();
 
