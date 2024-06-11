@@ -11,11 +11,9 @@
 	{% for annonce in annonces %}
 		<article>
 			<h2>
-				<a href="/PHP/MVC_Annonces/annonces/lire/{{annonce.id}}>">{{annonce.titre}}</a>
+				<a href="/PHP/MVC_Annonces/annonces/lire/{{annonce.id}}">{{annonce.title}}</a>
 			</h2>
 			<p>{{annonce.description}}</p>
-			<p>{{ base }}</p>
-			<p>{{ session.user.email }}</p>
 		</article>
 
 	{% endfor %}

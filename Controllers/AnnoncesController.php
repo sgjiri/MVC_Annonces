@@ -18,7 +18,7 @@ class AnnoncesController extends Controller
         $annoncesModel = new AnnoncesModel;
 
         //On va chercher toutes les annonces 
-        $annonces = $annoncesModel->findBy(['actif' => 1]);
+        $annonces = $annoncesModel->findAll();
         //On génère la vu
         $this->twig->display("annonces/index.html.twig", compact("annonces"));
     }
@@ -32,8 +32,37 @@ class AnnoncesController extends Controller
     {
         //On instancie le modèle. 
         $annoncesModel = new AnnoncesModel;
+        $joins = [];
+        $selectedColumns = 't.*';
+
+        // Obtention des informations de liaison de la table "annonce"
+        $annonceTableInfo = $annoncesModel->getTableInfo();
+        var_dump($annonceTableInfo);
+
+        // Parcours des colonnes de la table "annonce"
+        foreach ($annonceTableInfo['columns'] as $column) {
+            // Vérification si la colonne est une clé étrangère
+            if ($column['key']) {
+                var_dump("hello");
+                // Obtention des informations de la table de jointure
+                $joinTableName = $column['name'];
+                $joinTableAlias = strtolower(substr($joinTableName, 0, -3));
+                var_dump($joinTableAlias);
+                $joinCondition = "t.{$column['name']} = {$joinTableAlias}.id";
+
+                // Ajout de la jointure à la liste des jointures
+                $joins[] = [
+                    'table' => $joinTableName,
+                    'alias' => $joinTableAlias,
+                    'condition' => $joinCondition
+                ];
+
+                // Ajout des colonnes sélectionnées pour la table de jointure
+                $selectedColumns .= ", {$joinTableAlias}.*";
+            }
+        }
         //On va chercher 1 annonce. 
-        $annonce = $annoncesModel->find($id);
+        $annonce = $annoncesModel->findWithJoins($id, $joins, $selectedColumns);
         //On génère la vue 
         $this->twig->display('annonces/lire.html.twig', compact("annonce"));
     }
@@ -48,11 +77,9 @@ class AnnoncesController extends Controller
     {
         //On vérifie si l'utilisateur est connecté 
         if (isset($_SESSION["user"]) && !empty($_SESSION["user"]["id"])) {
-            //Si dans le code qui suit un utilisateur a mal validé le formulaire avec les champs qui manquaient, je récupère la variable session $_SESSION['form_data'] avec les informations qui se trouvent dedans
-            $title = isset($_SESSION['form_data']['titre']) ? strip_tags($_SESSION['form_data']['titre']) : "";
-            $description = isset($_SESSION['form_data']['description']) ? strip_tags($_SESSION['form_data']['description']) : "";
-            // Après usage, il est bon de nettoyer les données de session utilisées pour éviter des conflits futurs
-            unset($_SESSION['form_data']);
+            $formData = $this->getFormData(['titre', 'description']);
+            $title = $formData['titre'];
+            $description = $formData['description'];
             //L'utilisateur est connecté 
             //On vérifie si le formulaire est complet. 
             if (Form::validate($_POST, ["titre", "description"])) {

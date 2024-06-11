@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 // Importation de la classe Form située dans le répertoire App/Core
 use App\Core\Form;
-use App\Models\UsersModel;
+use App\Models\UserModel;
 
 // Déclaration de la classe UsersController qui étend la classe de base Controller
 class UsersController extends Controller
@@ -26,7 +26,7 @@ class UsersController extends Controller
         if (Form::validate($_POST, ["email", "password"])) {
             //Le formulaire est complet 
             //On va chercher dans la base de données l'utilisateur avec l'e-mail entré. 
-            $userModel = new UsersModel;
+            $userModel = new UserModel;
             $userArray = $userModel->findOneByEmail(strip_tags($_POST["email"]));
             //Si l'utilisateur n'existe pas 
             if (!$userArray) {
@@ -37,6 +37,8 @@ class UsersController extends Controller
                 exit;
             }
             //L'utilisateur existe 
+
+          
             $user = $userModel->hydrate($userArray);
             //On vérifie si le mot de passe est correct. 
             if (password_verify($_POST["password"], $user->getPassword())) {
@@ -123,9 +125,19 @@ class UsersController extends Controller
             $pass = password_hash($pass, PASSWORD_ARGON2ID);
 
 
-            $user = new UsersModel;
+            $user = new UserModel;
+            if($user->findOneByEmail(strip_tags($_POST["email"]))){
+                //Je stocke les informations de $_POST dans une autre variable session. Pour pouvoir Les récupérer plus tard, après la réactualisation de la page.
+                $_SESSION['form_data'] = $_POST;
+                $this->setFlash("error", "Utilisateur exist déjà");
+                header("Location: /PHP/MVC_Annonces/users/register");
+                exit;
+            }
             $user->hydrate(["email" => $email, "password" => $pass]);
             $user->create();
+            $user->setSession();
+            header("Location: /PHP/MVC_Annonces");
+            exit;
         } else {
             //Le formulaire n'est pas complet 
             if (!empty($_POST)) {
