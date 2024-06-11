@@ -1,7 +1,7 @@
 <?php
 namespace App\Models;
 
-class UsersModel extends Model
+class UserModel extends Model
 {
     protected $id; // Identifiant de l'utilisateur
     protected $email; // Adresse e-mail de l'utilisateur

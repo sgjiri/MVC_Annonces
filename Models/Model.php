@@ -63,6 +63,78 @@ class Model extends Db
         return $this->runQuery("SELECT * FROM $this->table WHERE id = $id")->fetch();
     }
 
+
+    public function findWithJoins(int $id, array $joins, $selectColumns = '*')
+    {
+        // Requête SQL avec la table principale
+        $sql = "SELECT $selectColumns
+            FROM $this->table AS t";
+
+        // Ajout des jointures à la requête
+        foreach ($joins as $join) {
+            $joinTable = $join['table'];
+            $joinCondition = $join['condition'];
+            $sql .= " INNER JOIN $joinTable ON $joinCondition";
+        }
+
+        // Ajout de la condition WHERE
+        $sql .= " WHERE t.id = $id";
+
+
+        // Récupération du résultat
+        return $this->runQuery($sql)->fetch();
+    }
+
+    /**
+     * Récupère les informations sur la table associée au modèle.
+     *
+     * @return array Les informations sur la table.
+     */
+    public function getTableInfo()
+    {
+        // Obtention des informations sur les colonnes de la table
+        $query = $this->runQuery("SHOW COLUMNS FROM $this->table");
+        $columns = $query->fetchAll();
+    
+        // Obtention de la définition de la table
+        $query = $this->runQuery("SHOW CREATE TABLE $this->table");
+        $tableDefinition = $query->fetch();
+    
+        // Création de la liste des colonnes avec leurs informations
+        $tableInfo = [
+            'table' => $this->table,
+            'columns' => []
+        ];
+    
+        foreach ($columns as $column) {
+            // Récupération des informations sur la colonne
+            $columnKey = $column->Key;
+            $columnName = $column->Field;
+    
+            // Initialisation de la variable pour la table référencée
+            $referencedTable = null;
+    
+            // Vérification si la colonne est une clé étrangère ou une clé primaire
+            if ($columnKey === 'MUL' || $columnKey === 'PRI') {
+                // Recherche du nom de la table référencée dans la définition de la table
+                preg_match("/CONSTRAINT `[^`]+` FOREIGN KEY \(`$columnName`\) REFERENCES `([^`]+)`|PRIMARY KEY \(`$columnName`\)/", $tableDefinition->{'Create Table'}, $matches);
+                if (isset($matches[1])) {
+                    $referencedTable = $matches[1];
+                }
+            }
+    
+            // Ajout des informations à la liste des colonnes
+            $tableInfo['columns'][] = [
+                'name' => $columnName,
+                'key' => $columnKey,
+                'referenced_table' => $referencedTable
+            ];
+        }
+    
+        // Retourne les informations sur la table
+        return $tableInfo;
+    }
+
     /**
      * Crée un nouvel enregistrement dans la table.
      *
@@ -155,15 +227,15 @@ class Model extends Db
     }
 
 
-public function hydrate($donnees)
-{
-        foreach($donnees as $key => $value){
+    public function hydrate($donnees)
+    {
+        foreach ($donnees as $key => $value) {
             // On récupère le nom du setter correspondant à la clé (key)
             // titre -> setTitre
-            $setter = "set".ucfirst($key);
+            $setter = "set" . ucfirst($key);
 
             // On vérifie si le setter existe.
-            if(method_exists($this, $setter)){
+            if (method_exists($this, $setter)) {
                 // On appelle le setter.
                 $this->$setter($value);
             }

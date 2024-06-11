@@ -20,8 +20,8 @@
                 <td>{{ad.description}}</td>
                 <td>
                     <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" id="customSwitch{{ ad.id }}" {{ ad.actif ? 'checked' : '' }} data-id="{{ ad.id }}">
-                        <label class="custom-control-label" for="customSwitch<?= $ad->id ?>"></label>
+                        <input type="checkbox" class="custom-control-input" id="customSwitch{{ ad.id }}" {% if ad.actif %}checked{% endif %} data-id="{{ ad.id }}">
+                        <label class="custom-control-label" for="customSwitch{{ ad.id }}"></label>
                     </div>
                 </td>
                 <td>
@@ -32,5 +32,9 @@
         {% endfor %}
     </tbody>
 </table>
+{% endblock %}
+
+{% block js %}
+		<script src="../Public/js/script.js"></script>
 {% endblock %}
 
