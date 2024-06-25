@@ -32,37 +32,9 @@ class AnnoncesController extends Controller
     {
         //On instancie le modèle. 
         $annoncesModel = new AnnoncesModel;
-        $joins = [];
-        $selectedColumns = 't.*';
-
-        // Obtention des informations de liaison de la table "annonce"
-        $annonceTableInfo = $annoncesModel->getTableInfo();
-        var_dump($annonceTableInfo);
-
-        // Parcours des colonnes de la table "annonce"
-        foreach ($annonceTableInfo['columns'] as $column) {
-            // Vérification si la colonne est une clé étrangère
-            if ($column['key']) {
-                var_dump("hello");
-                // Obtention des informations de la table de jointure
-                $joinTableName = $column['name'];
-                $joinTableAlias = strtolower(substr($joinTableName, 0, -3));
-                var_dump($joinTableAlias);
-                $joinCondition = "t.{$column['name']} = {$joinTableAlias}.id";
-
-                // Ajout de la jointure à la liste des jointures
-                $joins[] = [
-                    'table' => $joinTableName,
-                    'alias' => $joinTableAlias,
-                    'condition' => $joinCondition
-                ];
-
-                // Ajout des colonnes sélectionnées pour la table de jointure
-                $selectedColumns .= ", {$joinTableAlias}.*";
-            }
-        }
         //On va chercher 1 annonce. 
-        $annonce = $annoncesModel->findWithJoins($id, $joins, $selectedColumns);
+        $annonce = $annoncesModel->getAnnonceDetails($id);
+        var_dump($annonce);
         //On génère la vue 
         $this->twig->display('annonces/lire.html.twig', compact("annonce"));
     }
