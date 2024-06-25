@@ -5,13 +5,15 @@
 {% endblock %}
 
 {% block body %}
-<h1>{{ annonce.title }}</h1>
+	<h1>{{ annonce.title }}</h1>
 
 
-<article>
-    <p>{{ annonce.description }}</p>
-</article>
+	<article>
+		<p>{{ annonce.description }}</p>
+		
+		<p>{{ annonce.electronics_type }}</p>
+		{% if annonce.vehicle_type is defined and annonce.vehicle_type != null %}
+			<p>Type de vehicle: {{ annonce.vehicle_type }}</p>
+		{% endif %}
+	</article>
 {% endblock %}
-
-
-

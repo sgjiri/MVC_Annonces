@@ -64,26 +64,25 @@ class Model extends Db
     }
 
 
-    public function findWithJoins(int $id, array $joins, $selectColumns = '*')
-    {
-        // Requête SQL avec la table principale
-        $sql = "SELECT $selectColumns
-            FROM $this->table AS t";
+    public function getAnnonceDetails(int $id)
+{
+    $sql = "SELECT 
+                a.title, a.description, a.created_at, a.price,
+                a.city, a.postal_code,
+                v.brand, v.made_at, v.power_rating, v.vehicle_type,
+                e.brand, e.electronics_type, e.made_at, e.condition
+            FROM 
+                annonces a
+            LEFT JOIN 
+                vehicle v ON a.id = v.ad_id
+            LEFT JOIN 
+                electronics e ON a.id = e.ad_id
+            WHERE 
+                a.id = :id"; // Utilisation d'un placeholder nommé
 
-        // Ajout des jointures à la requête
-        foreach ($joins as $join) {
-            $joinTable = $join['table'];
-            $joinCondition = $join['condition'];
-            $sql .= " INNER JOIN $joinTable ON $joinCondition";
-        }
-
-        // Ajout de la condition WHERE
-        $sql .= " WHERE t.id = $id";
-
-
-        // Récupération du résultat
-        return $this->runQuery($sql)->fetch();
-    }
+    return $this->runQuery($sql, ['id' => $id])->fetch(); // Passage de l'ID comme paramètre lié
+}
+    
 
     /**
      * Récupère les informations sur la table associée au modèle.
